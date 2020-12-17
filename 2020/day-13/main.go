@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -19,7 +20,7 @@ func main() {
 
 	lines := strings.Split(strings.TrimSpace(string(bytes)), "\n")
 
-	timestamp, err := strconv.ParseUint(lines[0], 10, 64)
+	timestamp, err := strconv.ParseInt(lines[0], 10, 64)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -27,11 +28,11 @@ func main() {
 	rawBuses := strings.Split(strings.TrimSpace(lines[1]), ",")
 
 	part_1(timestamp, rawBuses)
-	part_2(timestamp, rawBuses)
+	part_2(rawBuses)
 }
 
-func part_1(timestamp uint64, rawBuses []string) {
-	buses := make([]uint64, 0, 1000)
+func part_1(timestamp int64, rawBuses []string) {
+	buses := make([]int64, 0, 1000)
 
 	for _, rawBus := range rawBuses {
 		rawBus = strings.TrimSpace(rawBus)
@@ -39,7 +40,7 @@ func part_1(timestamp uint64, rawBuses []string) {
 			continue
 		}
 
-		bus, err := strconv.ParseUint(rawBus, 10, 64)
+		bus, err := strconv.ParseInt(rawBus, 10, 64)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -47,8 +48,8 @@ func part_1(timestamp uint64, rawBuses []string) {
 		buses = append(buses, bus)
 	}
 
-	var minBus uint64
-	var minArrive uint64
+	var minBus int64
+	var minArrive int64
 	var isMinInit bool
 
 	for _, bus := range buses {
@@ -69,55 +70,25 @@ func part_1(timestamp uint64, rawBuses []string) {
 	fmt.Println((minArrive - timestamp) * minBus)
 }
 
-func part_2(timestamp uint64, rawBuses []string) {
-	buses := make(map[uint64]uint64)
+func part_2(rawBuses []string) {
+	buses := parseBuses_2(rawBuses)
+	modulos := parseModulos_2(buses)
+	onlyBuses := parseOnlyBuses_2(buses)
 
-	for i, rawBus := range rawBuses {
-		if rawBus == "x" {
-			continue
-		}
+	// https://en.wikipedia.org/wiki/Chinese_remainder_theorem#Search_by_sieving
+	result := onlyBuses[0] + modulos[onlyBuses[0]]
+	step := onlyBuses[0]
 
-		bus, err := strconv.ParseUint(rawBus, 10, 64)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		buses[bus] = uint64(i)
-	}
-
-	if isDebug() {
-		fmt.Println(buses)
-	}
-
-	var maxBus uint64
-
-	for bus, _ := range buses {
-		if maxBus < bus {
-			maxBus = bus
-		}
-	}
-
-	result := (100000000000000/maxBus)*maxBus + maxBus - buses[maxBus]
-
-	for {
-		if isDebug() {
-			fmt.Println(result)
-		}
-
-		ok := true
-
-		for bus, t := range buses {
-			if (result+t)%bus != 0 {
-				ok = false
+	for i := 1; i < len(onlyBuses); i++ {
+		for {
+			if result%onlyBuses[i] == modulos[onlyBuses[i]] {
 				break
 			}
+
+			result += step
 		}
 
-		if ok {
-			break
-		}
-
-		result += maxBus
+		step *= onlyBuses[i]
 	}
 
 	fmt.Println(result)
@@ -125,4 +96,59 @@ func part_2(timestamp uint64, rawBuses []string) {
 
 func isDebug() bool {
 	return os.Getenv("DEBUG") != ""
+}
+
+func parseBuses_2(rawBuses []string) map[int64]int64 {
+	buses := make(map[int64]int64)
+
+	for i, rawBus := range rawBuses {
+		if rawBus == "x" {
+			continue
+		}
+
+		bus, err := strconv.ParseInt(rawBus, 10, 64)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		buses[bus] = int64(i)
+	}
+
+	if isDebug() {
+		fmt.Println(buses)
+	}
+
+	return buses
+}
+
+func parseModulos_2(buses map[int64]int64) map[int64]int64 {
+	modulos := make(map[int64]int64)
+
+	for bus, i := range buses {
+		modulo := int64(-i)
+		for modulo < 0 {
+			modulo += bus
+		}
+
+		modulos[bus] = modulo % bus
+	}
+	if isDebug() {
+		fmt.Println(modulos)
+	}
+
+	return modulos
+}
+
+func parseOnlyBuses_2(buses map[int64]int64) []int64 {
+	onlyBuses := make([]int64, 0, 1000)
+
+	for bus := range buses {
+		onlyBuses = append(onlyBuses, bus)
+	}
+
+	sort.Slice(onlyBuses, func(i, j int) bool {
+		return onlyBuses[i] > onlyBuses[j]
+	})
+
+	return onlyBuses
 }
