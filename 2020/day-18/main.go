@@ -19,6 +19,7 @@ func main() {
 	}
 
 	part_1(lines)
+	part_2(lines)
 }
 
 func part_1(lines []string) {
@@ -26,7 +27,19 @@ func part_1(lines []string) {
 
 	exprs := parseExpressions(lines)
 	for _, expr := range exprs {
-		rpn := parseRPN(expr)
+		rpn := parseRPN(expr, getPrecedence1)
+		result += calculateRPN(rpn)
+	}
+
+	fmt.Println(result)
+}
+
+func part_2(lines []string) {
+	result := 0
+
+	exprs := parseExpressions(lines)
+	for _, expr := range exprs {
+		rpn := parseRPN(expr, getPrecedence2)
 		result += calculateRPN(rpn)
 	}
 
@@ -59,9 +72,11 @@ func parseExpression(line string) []string {
 	return result
 }
 
+type getPrecedenceFn func(e string) int
+
 // Reverse Polish Notation
 // https://en.wikipedia.org/wiki/Shunting-yard_algorithm
-func parseRPN(expr []string) []string {
+func parseRPN(expr []string, getPrecedenceFn getPrecedenceFn) []string {
 	operatorStack := stack.NewStackString()
 	result := make([]string, 0, len(expr))
 	for _, e := range expr {
@@ -78,6 +93,11 @@ func parseRPN(expr []string) []string {
 				}
 
 				if op == "(" {
+					operatorStack.Push(op)
+					break
+				}
+
+				if getPrecedenceFn(op) < getPrecedenceFn(e) {
 					operatorStack.Push(op)
 					break
 				}
@@ -120,6 +140,21 @@ func parseRPN(expr []string) []string {
 	}
 
 	return result
+}
+
+func getPrecedence1(e string) int {
+	return 0
+}
+
+func getPrecedence2(e string) int {
+	switch e {
+	case "+", "-":
+		return 2
+	case "*", "/":
+		return 1
+	default:
+		return 0
+	}
 }
 
 func calculateRPN(rpn []string) int {
