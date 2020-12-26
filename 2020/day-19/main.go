@@ -163,6 +163,7 @@ func getOrValue(id int, rules map[int]rule, orValues map[int][]string) []string 
 		result = append(result, composeMatrix(matrix)...)
 	}
 
+	orValues[id] = result
 	return result
 }
 
