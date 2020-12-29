@@ -18,10 +18,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if len(pars) != 2 {
-		log.Fatal("len pars must be 2")
-	}
-
 	ruleLines := strings.Split(pars[0], "\n")
 	if debug.IsDebug() {
 		fmt.Println(ruleLines)
@@ -32,6 +28,7 @@ func main() {
 	}
 
 	part_1(ruleLines, msgsLines)
+	part_2(ruleLines, msgsLines)
 }
 
 func part_1(ruleLines, msgsLines []string) {
@@ -39,14 +36,6 @@ func part_1(ruleLines, msgsLines []string) {
 	for _, line := range ruleLines {
 		r := parseRule(line)
 		rules[r.id] = r
-	}
-
-	// get all or value for rule id 0
-	orValues := make(map[int][]string)
-	orValue0 := getOrValue(0, rules, orValues)
-	maskedOrValue0 := make(map[string]struct{})
-	for _, value0 := range orValue0 {
-		maskedOrValue0[value0] = struct{}{}
 	}
 
 	// count all line match rule id 0
@@ -57,8 +46,68 @@ func part_1(ruleLines, msgsLines []string) {
 			continue
 		}
 
-		if _, ok := maskedOrValue0[line]; ok {
-			count++
+		indexes := getValidIndexes(line, 0, rules)
+		if len(indexes) == 0 {
+			continue
+		}
+
+		for _, index := range indexes {
+			if index == len(line) {
+				count++
+				break
+			}
+		}
+	}
+	fmt.Println(count)
+}
+
+func part_2(ruleLines, msgsLines []string) {
+	rules := make(map[int]rule)
+	for _, line := range ruleLines {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+
+		r := parseRule(line)
+		rules[r.id] = r
+	}
+
+	rules[8] = rule{
+		id:   8,
+		kind: kindComplex,
+		orRuleIDs: [][]int{
+			{42},
+			{42, 8},
+		},
+	}
+	rules[11] = rule{
+		id:   11,
+		kind: kindComplex,
+		orRuleIDs: [][]int{
+			{42, 31},
+			{42, 11, 31},
+		},
+	}
+
+	// count all line match rule id 0
+	count := 0
+	for _, line := range msgsLines {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+
+		indexes := getValidIndexes(line, 0, rules)
+		if len(indexes) == 0 {
+			continue
+		}
+
+		for _, index := range indexes {
+			if index == len(line) {
+				count++
+				break
+			}
 		}
 	}
 	fmt.Println(count)
@@ -135,52 +184,60 @@ func parseRule(line string) rule {
 	}
 }
 
-func getOrValue(id int, rules map[int]rule, orValues map[int][]string) []string {
-	r, ok := rules[id]
+// return indexes where msg[0:index] is matched with ruleID
+// get all valid indexes, do not stop on first ok (handle loop rule)
+// example 1: 2 3 | 3 2
+// if 2 3 is matched, do not stop, check 3 2 too
+func getValidIndexes(msg string, ruleID int, rules map[int]rule) []int {
+	r, ok := rules[ruleID]
 	if !ok {
-		log.Fatal("no id ? why ?")
-	}
-
-	orValue, ok := orValues[id]
-	if ok {
-		return orValue
+		return nil
 	}
 
 	if r.kind == kindSimple {
-		result := []string{r.value}
-		orValues[id] = result
-		return result
+		if strings.HasPrefix(msg, r.value) {
+			return []int{1}
+		}
+
+		return nil
 	}
 
-	result := make([]string, 0, 10)
+	result := make([]int, 0, 10)
 
 	for _, ruleIDs := range r.orRuleIDs {
-		matrix := make([][]string, 0, 10)
-		for _, id := range ruleIDs {
-			orValue = getOrValue(id, rules, orValues)
-			matrix = append(matrix, orValue)
-		}
-		result = append(result, composeMatrix(matrix)...)
-	}
+		indexes := []int{0}
 
-	orValues[id] = result
-	return result
-}
+		for _, ruleID := range ruleIDs {
+			temp := make([]int, 0, 10)
+			for _, index := range indexes {
+				if index >= len(msg) {
+					continue
+				}
 
-// matrix = pool + pool + pool
-// pool = ["a", "b"]
-// "a" + ["b", "c"] = ["ab", "ac"]
-func composeMatrix(matrix [][]string) []string {
-	result := []string{""}
+				newValidIndexes := getValidIndexes(msg[index:len(msg)], ruleID, rules)
+				if len(newValidIndexes) == 0 {
+					continue
+				}
 
-	for _, pool := range matrix {
-		temp := make([]string, 0, len(result))
-		for _, v := range result {
-			for _, newV := range pool {
-				temp = append(temp, v+newV)
+				for _, newValidIndex := range newValidIndexes {
+					temp = append(temp, index+newValidIndex)
+				}
+			}
+			indexes = temp
+			if len(indexes) == 0 {
+				break
 			}
 		}
-		result = temp
+
+		if len(indexes) == 0 {
+			continue
+		}
+
+		result = append(result, indexes...)
+	}
+
+	if len(result) == 0 {
+		return nil
 	}
 
 	return result
