@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/haunt98/advent-of-code/pkg/parser"
-	"github.com/haunt98/panda/pkg/stack"
+	"github.com/haunt98/panda-go/stack"
 )
 
 func main() {
