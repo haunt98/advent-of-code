@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"os"
 	"strings"
 )
 
@@ -449,8 +448,4 @@ func init3D(min_z, max_z, min_x, max_x, min_y, max_y int) dimension3th {
 		m3d[i] = init2D(min_x, max_x, min_y, max_y)
 	}
 	return m3d
-}
-
-func isDebug() bool {
-	return os.Getenv("DEBUG") != ""
 }

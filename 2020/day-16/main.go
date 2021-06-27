@@ -143,9 +143,7 @@ func backtrack(rules []rule, possibleRules []map[string]rule, prevSolution []rul
 	copyRules(newPossibleRules, possibleRules)
 
 	for _, prevRule := range prevSolution[0:step] {
-		if _, ok := newPossibleRules[step][prevRule.name]; ok {
-			delete(newPossibleRules[step], prevRule.name)
-		}
+		delete(newPossibleRules[step], prevRule.name)
 	}
 
 	if isDebug() {
@@ -224,9 +222,7 @@ func csp(rules []rule, possibleRules []map[string]rule, prevSolution []rule, ste
 				continue
 			}
 
-			if _, ok := newPossibleRules[i][name]; ok {
-				delete(newPossibleRules[i], name)
-			}
+			delete(newPossibleRules[i], name)
 		}
 
 		if isDebug() {
