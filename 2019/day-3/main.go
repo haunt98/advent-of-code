@@ -33,7 +33,7 @@ func main() {
 func part_1(m_1, m_2 map[position]int) int {
 	intersections := make([]position, 0, 1000)
 
-	for pos, _ := range m_1 {
+	for pos := range m_1 {
 		if _, ok := m_2[pos]; ok {
 			if pos.X == 0 && pos.Y == 0 {
 				continue
@@ -62,7 +62,7 @@ func part_1(m_1, m_2 map[position]int) int {
 func part_2(m_1, m_2 map[position]int) int {
 	intersections := make([]position, 0, 1000)
 
-	for pos, _ := range m_1 {
+	for pos := range m_1 {
 		if _, ok := m_2[pos]; ok {
 			if pos.X == 0 && pos.Y == 0 {
 				continue
