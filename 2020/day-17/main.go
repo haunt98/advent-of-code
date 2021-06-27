@@ -294,8 +294,6 @@ func expand1D(m1d dimension1st) (dimension1st, int, int) {
 		if y > max_y {
 			max_y = y
 		}
-
-		m1d[y] = m1d[y]
 	}
 
 	if !min_y_set || !max_y_set {

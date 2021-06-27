@@ -30,7 +30,7 @@ func part_1(lines []string) {
 
 	alreadyCount := make(map[string]int)
 
-	for orbit, _ := range m {
+	for orbit := range m {
 		countOrbit(m, alreadyCount, orbit)
 	}
 

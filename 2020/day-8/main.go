@@ -96,7 +96,7 @@ func part_2(lines []string) {
 		}
 
 		accumulator, isLoop := run(m)
-		if isLoop == false {
+		if !isLoop {
 			fmt.Println(accumulator)
 			return
 		}
@@ -116,7 +116,7 @@ func part_2(lines []string) {
 		}
 
 		accumulator, isLoop := run(m)
-		if isLoop == false {
+		if !isLoop {
 			fmt.Println(accumulator)
 			return
 		}

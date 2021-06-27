@@ -126,47 +126,6 @@ func part_2(rules []rule, yourTicket ticket, nearbyTickets []ticket) {
 	fmt.Println(result)
 }
 
-// blindly go from first field
-func backtrack(rules []rule, possibleRules []map[string]rule, prevSolution []rule, step int) []rule {
-	if step == len(rules) {
-		return prevSolution
-	}
-
-	if isDebug() {
-		fmt.Println("step", step)
-		fmt.Println("rules", rules)
-		fmt.Println("possibleRules", possibleRules)
-		fmt.Println("prevSolution", prevSolution)
-	}
-
-	newPossibleRules := make([]map[string]rule, len(rules))
-	copyRules(newPossibleRules, possibleRules)
-
-	for _, prevRule := range prevSolution[0:step] {
-		delete(newPossibleRules[step], prevRule.name)
-	}
-
-	if isDebug() {
-		fmt.Println("newPossibleRules", newPossibleRules)
-	}
-
-	for _, r := range newPossibleRules[step] {
-		newPrevSolution := make([]rule, len(rules))
-		copy(newPrevSolution, prevSolution)
-		newPrevSolution[step] = r
-
-		cloneNewPossibleRules := make([]map[string]rule, len(rules))
-		copyRules(cloneNewPossibleRules, newPossibleRules)
-
-		newSolution := backtrack(rules, cloneNewPossibleRules, newPrevSolution, step+1)
-		if newSolution != nil {
-			return newSolution
-		}
-	}
-
-	return nil
-}
-
 // go from field with least possible rule
 func csp(rules []rule, possibleRules []map[string]rule, prevSolution []rule, step int) []rule {
 	if step == len(rules) {
