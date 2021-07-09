@@ -29,7 +29,7 @@ func part_1(lines []string) {
 
 	canContain := make(map[bag]struct{})
 
-	for b, _ := range m {
+	for b := range m {
 		if isContain(m, canContain, b, "shiny gold") {
 			result++
 		}
@@ -46,8 +46,10 @@ func part_2(lines []string) {
 	fmt.Println(result)
 }
 
-type bag string
-type capacity map[bag]int
+type (
+	bag      string
+	capacity map[bag]int
+)
 
 func readLines(lines []string) map[bag]capacity {
 	m := make(map[bag]capacity)
@@ -110,7 +112,7 @@ func isContain(m map[bag]capacity, canContain map[bag]struct{}, root, target bag
 		return false
 	}
 
-	for b, _ := range m[root] {
+	for b := range m[root] {
 		if b == target {
 			return true
 		}

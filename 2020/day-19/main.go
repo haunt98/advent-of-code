@@ -214,7 +214,7 @@ func getValidIndexes(msg string, ruleID int, rules map[int]rule) []int {
 					continue
 				}
 
-				newValidIndexes := getValidIndexes(msg[index:len(msg)], ruleID, rules)
+				newValidIndexes := getValidIndexes(msg[index:], ruleID, rules)
 				if len(newValidIndexes) == 0 {
 					continue
 				}

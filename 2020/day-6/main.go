@@ -64,7 +64,7 @@ func countAnswer(group string) (m map[rune]int, exist int, same int) {
 		}
 	}
 
-	for question, _ := range m {
+	for question := range m {
 		if m[question] > 0 {
 			exist++
 		}
