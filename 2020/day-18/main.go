@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/haunt98/advent-of-code/pkg/parser"
-	"github.com/haunt98/panda-go/stack"
+	"github.com/make-go-great/panda-go/parser"
+	"github.com/make-go-great/panda-go/stack"
 )
 
 func main() {
