@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/make-go-great/panda-go v0.6.0
-	github.com/stretchr/testify v1.6.1
+	github.com/stretchr/testify v1.7.0
 )
 
 require (
